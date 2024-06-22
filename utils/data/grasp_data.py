@@ -10,7 +10,7 @@ class GraspDatasetBase(torch.utils.data.Dataset):
     An abstract dataset for training networks in a common format.
     """
 
-    def __init__(self, output_size=224, include_depth=True, include_rgb=False, random_rotate=False,
+    def __init__(self, output_size=224, include_depth=True, include_rgb=False, include_rgd=False, random_rotate=False,
                  random_zoom=False, input_only=False):
         """
         :param output_size: Image output size in pixels (square)
@@ -26,11 +26,12 @@ class GraspDatasetBase(torch.utils.data.Dataset):
         self.input_only = input_only
         self.include_depth = include_depth
         self.include_rgb = include_rgb
+        self.include_rgd = include_rgd
 
         self.grasp_files = []
 
-        if include_depth is False and include_rgb is False:
-            raise ValueError('At least one of Depth or RGB must be specified.')
+        if include_depth is False and include_rgb is False and include_depth is False:
+            raise ValueError('At least one of Depth or RGB or RGD must be specified.')
 
     @staticmethod
     def numpy_to_torch(s):
@@ -46,6 +47,9 @@ class GraspDatasetBase(torch.utils.data.Dataset):
         raise NotImplementedError()
 
     def get_rgb(self, idx, rot=0, zoom=1.0):
+        raise NotImplementedError()
+    
+    def get_rgd(self, idx, rot=0, zoom=1.0):
         raise NotImplementedError()
 
     def __getitem__(self, idx):
@@ -68,6 +72,10 @@ class GraspDatasetBase(torch.utils.data.Dataset):
         if self.include_rgb:
             rgb_img = self.get_rgb(idx, rot, zoom_factor)
 
+        # Load the RGB image
+        if self.include_rgd:
+            rgd_img = self.get_rgd(idx, rot, zoom_factor)
+
         # Load the grasps
         bbs = self.get_gtbb(idx, rot, zoom_factor)
 
@@ -86,6 +94,8 @@ class GraspDatasetBase(torch.utils.data.Dataset):
             x = self.numpy_to_torch(depth_img)
         elif self.include_rgb:
             x = self.numpy_to_torch(rgb_img)
+        elif self.include_rgd:
+            x = self.numpy_to_torch(rgd_img)
 
         pos = self.numpy_to_torch(pos_img)
         cos = self.numpy_to_torch(np.cos(2 * ang_img))

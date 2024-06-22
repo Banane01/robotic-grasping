@@ -3,6 +3,7 @@ import os
 
 from utils.dataset_processing import grasp, image
 from .grasp_data import GraspDatasetBase
+import numpy as np
 
 
 class CornellDataset(GraspDatasetBase):
@@ -68,3 +69,13 @@ class CornellDataset(GraspDatasetBase):
             rgb_img.normalise()
             rgb_img.img = rgb_img.img.transpose((2, 0, 1))
         return rgb_img.img
+    
+    def get_rgd(self, idx, rot=0, zoom=1.0, normalise=True):
+        rgb_image = self.get_rgb(idx, rot, zoom, normalise)
+        depth_image = self.get_depth(idx, rot, zoom)
+        
+        # Replace blue channel in RGB image with depth values
+        rgb_image[:, :, 2] = depth_image
+
+        return rgb_image
+
