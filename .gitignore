@@ -109,3 +109,6 @@ results/
 saved_data/
 
 *.pyc
+
+dataset/
+logs/

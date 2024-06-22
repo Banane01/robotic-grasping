@@ -124,3 +124,7 @@ python run_grasp_generator.py
 
 ## Run on a Robot
 To run the grasp generator with a robot, please use our ROS implementation for Baxter robot. It is available at: https://github.com/skumra/baxter-pnp
+
+python ./train_network.py --dataset cornell --dataset-path ./dataset --description training_cornell --use-rgb 1 --use-depth 1 --network efcnn --vis --input-size 240
+
+python ./train_network.py --dataset cornell --dataset-path ./dataset --description training_cornell --use-rgb 1 --use-depth 1 --network squeezenet --vis --input-size 224 --channel-size 64

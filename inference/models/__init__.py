@@ -19,5 +19,8 @@ def get_network(network_name):
     elif network_name == 'squeezenet':
         from .squeezenet import SqueezeNet
         return SqueezeNet
+    elif network_name == 'efcnn':
+        from .efcnn import EFCNN
+        return EFCNN
     else:
         raise NotImplementedError('Network {} is not implemented'.format(network_name))
