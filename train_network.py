@@ -29,10 +29,12 @@ def parse_args():
                         help='Network name in inference/models')
     parser.add_argument('--input-size', type=int, default=224,
                         help='Input image size for the network')
-    parser.add_argument('--use-depth', type=int, default=1,
+    parser.add_argument('--use-depth', type=int, default=0,
                         help='Use Depth image for training (1/0)')
-    parser.add_argument('--use-rgb', type=int, default=1,
+    parser.add_argument('--use-rgb', type=int, default=0,
                         help='Use RGB image for training (1/0)')
+    parser.add_argument('--use-rgd', type=int, default=0,
+                        help='Use RGD image for training (1/0)')
     parser.add_argument('--use-dropout', type=int, default=1,
                         help='Use dropout for training (1/0)')
     parser.add_argument('--dropout-prob', type=float, default=0.1,
@@ -254,7 +256,8 @@ def run():
                       random_rotate=True,
                       random_zoom=True,
                       include_depth=args.use_depth,
-                      include_rgb=args.use_rgb)
+                      include_rgb=args.use_rgb,
+                      include_rgd=args.use_rgd)
     logging.info('Dataset size is {}'.format(dataset.length))
 
     # Creating data indices for training and validation splits
