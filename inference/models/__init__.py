@@ -16,5 +16,9 @@ def get_network(network_name):
     elif network_name == 'grconvnet4':
         from .grconvnet4 import GenerativeResnet
         return GenerativeResnet
+    elif network_name == 'squeezenet':
+        import torch
+        model = torch.hub.load('pytorch/vision:v0.10.0', 'squeezenet1_1', pretrained=True)
+        return model
     else:
         raise NotImplementedError('Network {} is not implemented'.format(network_name))
