@@ -29,13 +29,12 @@ class EFCNN(GraspModel):
         self.conv5_5 = nn.Conv2d(256, 256, 3, stride=1, padding=1)
         self.conv5_5_bn = nn.BatchNorm2d(256)
 
-        self.bottom_conv = nn.Conv2d(256, 512, 3, stride=1, padding=1)
-        self.bottom_conv_bn = nn.BatchNorm2d(512)
-        self.bottom_conv_1 = nn.Conv2d(512, 512, 3, stride=1, padding=1)
-        self.bottom_conv_1_bn = nn.BatchNorm2d(512)
+        self.res1 = ResidualBlock(256, 256)
+        self.res2 = ResidualBlock(256, 256)
+        self.res3 = ResidualBlock(256, 256)
 
         self.conv1_transpose = nn.ConvTranspose2d(
-            512, 256, 3, stride=1, padding=1)
+            256, 256, 3, stride=1, padding=1)
         self.conv1_trans_bn = nn.BatchNorm2d(256)
         self.conv1_1_transpose = nn.ConvTranspose2d(
             256, 256, 3, stride=1, padding=1)
@@ -124,8 +123,9 @@ class EFCNN(GraspModel):
         x = self.conv5_5_bn(F.relu(self.conv5_5(x)))
         x_256 = x
 
-        x = self.bottom_conv_bn(F.relu(self.bottom_conv(x)))
-        x = self.bottom_conv_1_bn(F.relu(self.bottom_conv_1(x)))
+        x = self.res1(x)
+        x = self.res2(x)
+        x = self.res3(x)
 
         x = self.conv1_trans_bn(F.relu(self.conv1_transpose(x)))
         x = self.conv1_1_trans_bn(F.relu(self.conv1_1_transpose(x)))

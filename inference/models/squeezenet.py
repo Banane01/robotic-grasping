@@ -4,31 +4,29 @@ import torch
 import torch.nn as nn
 
 class SqueezeNet(GraspModel):
-    def __init__(self, input_channels=3, output_channels=1, channel_size=64, dropout=False, prob=0.0) -> None:
+    def __init__(self, input_channels=4, output_channels=1, channel_size=64, dropout=False, prob=0.0) -> None:
         super(SqueezeNet, self).__init__()
 
         self.squeeze = nn.Sequential(
             nn.Conv2d(input_channels, channel_size, kernel_size=3, stride=2),
             nn.ReLU(inplace=True),
             nn.MaxPool2d(kernel_size=3, stride=2, ceil_mode=True),
-            Fire(64, 16, 64, 64),
-            Fire(128, 16, 64, 64),
+            Fire(32, 16, 32, 32),
+            Fire(64, 16, 32, 32),
             nn.MaxPool2d(kernel_size=3, stride=2, ceil_mode=True),
-            Fire(128, 32, 128, 128),
-            Fire(256, 32, 128, 128),
+            Fire(64, 32, 64, 64),
+            Fire(128, 32, 64, 64),
             nn.MaxPool2d(kernel_size=3, stride=2, ceil_mode=True),
-            Fire(256, 48, 192, 192),
-            Fire(384, 48, 192, 192),
-            Fire(384, 64, 256, 256),
-            Fire(512, 64, 256, 256),
-            nn.Conv2d(512, 64, kernel_size=3, stride=2),
-            nn.AdaptiveAvgPool2d(224)
-
+            Fire(128, 48, 96, 96),
+            Fire(192, 48, 96, 96),
+            Fire(192, 64, 128, 128),
+            Fire(256, 64, 128, 128),
+            nn.AdaptiveAvgPool2d((224, 224)),
         )
-        self.pos_output = nn.Linear(in_features=224, out_features=1)
-        self.cos_output = nn.Linear(in_features=224, out_features=1)
-        self.sin_output = nn.Linear(in_features=224, out_features=1)
-        self.width_output = nn.Linear(in_features=224, out_features=1)
+        self.pos_output = nn.Conv2d(256, 1, kernel_size=1)
+        self.cos_output = nn.Conv2d(256, 1, kernel_size=1)
+        self.sin_output = nn.Conv2d(256, 1, kernel_size=1)
+        self.width_output = nn.Conv2d(256, 1, kernel_size=1)
 
         self.dropout = dropout
         self.dropout_pos = nn.Dropout(p=prob)
