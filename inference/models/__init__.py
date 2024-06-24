@@ -25,5 +25,8 @@ def get_network(network_name):
     elif network_name == 'efcnn2':
         from .efcnn_2 import EFCNN
         return EFCNN
+    elif network_name == 'lightweight':
+        from .lightweight import Lightweight
+        return Lightweight
     else:
         raise NotImplementedError('Network {} is not implemented'.format(network_name))

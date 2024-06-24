@@ -128,3 +128,7 @@ To run the grasp generator with a robot, please use our ROS implementation for B
 python ./train_network.py --dataset cornell --dataset-path ./dataset --description training_cornell --use-rgb 1 --use-depth 1 --network efcnn --vis --input-size 240
 
 python ./train_network.py --dataset cornell --dataset-path ./dataset --description training_cornell --use-rgb 1 --use-depth 1 --network squeezenet --vis --input-size 224 --channel-size 64
+
+python ./train_network.py --dataset cornell --dataset-path ./dataset --description training_cornell --use-rgb 1 --use-depth 1 --network efcnn2 --vis --input-size 240
+
+ python ./train_network.py --dataset cornell --dataset-path ./dataset --description training_cornell --use-rgb 1 --use-depth 1 --network lightweight --input-size 224 --channel-size 32 --vis

@@ -84,3 +84,108 @@ class Fire(nn.Module):
         return torch.cat(
             [self.expand1x1_activation(self.expand1x1(x)), self.expand3x3_activation(self.expand3x3(x))], 1
         )
+    
+class MFE(nn.Module):
+    def __init__(self, in_channels, kernel_size = 1, kernel_size_dilated = 3):
+        super(MFE, self).__init__()
+
+        self.conv1 = nn.Conv2d(in_channels, in_channels, kernel_size=kernel_size)
+        self.conv3 = nn.Conv2d(in_channels, in_channels, kernel_size=kernel_size_dilated, padding=1, dilation=1)
+        self.bn1 = nn.BatchNorm2d(in_channels)
+        self.bn2 = nn.BatchNorm2d(in_channels)
+        self.bn3 = nn.BatchNorm2d(in_channels)
+
+    def forward(self, x_in: torch.Tensor) -> torch.Tensor:
+        x1 = self.bn1(x_in)
+        x2 = self.conv1(x_in)
+        x2 = self.bn2(x2)
+        x3 = self.conv3(x_in)
+        x3 = self.bn3(x3)
+        return (x1 + x2 + x3)
+
+class SEModule(nn.Module):
+    def __init__(self, channels, reduction=2):
+        super(SEModule, self).__init__()
+        self.avg_pool = nn.AdaptiveAvgPool2d(1)
+        self.fc1 = nn.Linear(channels, channels // reduction)
+        self.relu = nn.ReLU(inplace=True)
+        self.fc2 = nn.Linear(channels // reduction, channels)
+        self.sigmoid = nn.Sigmoid()
+
+    def forward(self, x):
+        b, c, _, _ = x.size()
+        y = self.avg_pool(x).view(b, c)
+        y = self.fc1(y)
+        y = self.relu(y)
+        y = self.fc2(y)
+        y = self.sigmoid(y).view(b, c, 1, 1)
+        return x * y
+
+class MFF(nn.Module):
+    def __init__(self, in_channels, out_channels, kernel_size=1, kernel_size_dilated=3):
+        super(MFF, self).__init__()
+        self.MFE1 = MFE(in_channels, kernel_size, kernel_size_dilated)
+        self.MFE2 = MFE(in_channels, kernel_size, kernel_size_dilated)
+        self.SE1 = SEModule(in_channels)
+        self.SE2 = SEModule(in_channels)
+
+    def forward(self, x_rgb: torch.Tensor, x_depth: torch.Tensor):
+        x1 = self.MFE1(x_rgb)
+        x2 = self.MFE2(x_depth)
+        return torch.cat([self.SE1(x1), self.SE2(x2)], 1)
+
+class MFA(nn.Module):
+    def __init__(self, in_channels, out_channels, pool_size):
+        super(MFA, self).__init__()
+        self.conv1 = nn.Conv2d(in_channels, int(out_channels/4), kernel_size=1)
+        self.bn1 = nn.BatchNorm2d(int(out_channels/4))
+
+        self.max_pool = nn.AdaptiveMaxPool2d(pool_size)
+        self.conv2 = nn.Conv2d(in_channels, int(out_channels/4), kernel_size=1)
+        self.bn2 = nn.BatchNorm2d(int(out_channels/4))
+
+        self.conv3 = nn.Conv2d(in_channels, int(out_channels/4), kernel_size=1)
+        self.bn3 = nn.BatchNorm2d(int(out_channels/4))
+        self.conv3_1 = nn.Conv2d(int(out_channels/4), int(out_channels/4), kernel_size=(1,3), padding=(0,1))
+        self.bn3_1 = nn.BatchNorm2d(int(out_channels/4))
+        self.conv3_2 = nn.Conv2d(int(out_channels/4), int(out_channels/4), kernel_size=(3,1), padding=(1,0))
+        self.bn3_2 = nn.BatchNorm2d(int(out_channels/4))
+
+        self.conv4 = nn.Conv2d(in_channels, int(out_channels/4), kernel_size=1)
+        self.bn4 = nn.BatchNorm2d(int(out_channels/4))
+        self.conv4_1 = nn.Conv2d(int(out_channels/4), int(out_channels/4), kernel_size=(1,7), padding=(0,3))
+        self.bn4_1 = nn.BatchNorm2d(int(out_channels/4))
+        self.conv4_2 = nn.Conv2d(int(out_channels/4), int(out_channels/4), kernel_size=(7,1), padding=(3,0))
+        self.bn4_2 = nn.BatchNorm2d(int(out_channels/4))
+
+    def forward(self, x_in):
+        x1 = self.conv1(x_in)
+        x1 = self.bn1(x1)
+        x1 = F.relu(x1)
+
+        x2 = self.max_pool(x_in)
+        x2 = self.conv2(x2)
+        x2 = self.bn2(x2)
+        x2 = F.relu(x2)
+
+        x3 = self.conv3(x_in)
+        x3 = self.bn3(x3)
+        x3 = F.relu(x3)
+        x3 = self.conv3_1(x3)
+        x3 = self.bn3_1(x3)
+        x3 = F.relu(x3)
+        x3 = self.conv3_2(x3)
+        x3 = self.bn3_2(x3)
+        x3 = F.relu(x3)
+
+        x4 = self.conv4(x_in)
+        x4 = self.bn4(x4)
+        x4 = F.relu(x4)
+        x4 = self.conv4_1(x4)
+        x4 = self.bn4_1(x4)
+        x4 = F.relu(x4)
+        x4 = self.conv4_2(x4)
+        x4 = self.bn4_2(x4)
+        x4 = F.relu(x4)
+
+        return torch.cat([x1, x2, x3, x4], 1)
