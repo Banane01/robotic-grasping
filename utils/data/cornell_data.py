@@ -70,6 +70,12 @@ class CornellDataset(GraspDatasetBase):
             rgb_img.img = rgb_img.img.transpose((2, 0, 1))
         return rgb_img.img
     
+    def get_gray(self, idx, rot=0, zoom=1.0, normalise=True):
+        rgb_image = self.get_rgb(idx, rot, zoom, normalise)
+        weights = np.array([0.2989, 0.5870, 0.1140]).reshape(3, 1, 1)
+        gray_image = np.sum(rgb_image * weights, axis=0, keepdims=True)
+        return gray_image
+    
     def get_rgd(self, idx, rot=0, zoom=1.0, normalise=True):
         rgb_image = self.get_rgb(idx, rot, zoom, normalise)
         depth_image = self.get_depth(idx, rot, zoom)
