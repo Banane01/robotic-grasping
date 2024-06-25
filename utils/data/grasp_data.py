@@ -10,7 +10,7 @@ class GraspDatasetBase(torch.utils.data.Dataset):
     An abstract dataset for training networks in a common format.
     """
 
-    def __init__(self, output_size=224, include_depth=True, include_rgb=False, include_rgd=False, random_rotate=False,
+    def __init__(self, output_size=224, include_depth=True, include_rgb=False, include_rgd=False, include_gray=False, random_rotate=False,
                  random_zoom=False, input_only=False):
         """
         :param output_size: Image output size in pixels (square)
@@ -27,6 +27,7 @@ class GraspDatasetBase(torch.utils.data.Dataset):
         self.include_depth = include_depth
         self.include_rgb = include_rgb
         self.include_rgd = include_rgd
+        self.include_gray = include_gray
 
         self.grasp_files = []
 
@@ -47,6 +48,9 @@ class GraspDatasetBase(torch.utils.data.Dataset):
         raise NotImplementedError()
 
     def get_rgb(self, idx, rot=0, zoom=1.0):
+        raise NotImplementedError()
+    
+    def get_gray(self, idx, rot=0, zoom=1.0):
         raise NotImplementedError()
     
     def get_rgd(self, idx, rot=0, zoom=1.0):
@@ -72,6 +76,9 @@ class GraspDatasetBase(torch.utils.data.Dataset):
         if self.include_rgb:
             rgb_img = self.get_rgb(idx, rot, zoom_factor)
 
+        if self.include_gray:
+            gray_img = self.get_gray(idx, rot, zoom_factor)
+
         # Load the RGB image
         if self.include_rgd:
             rgd_img = self.get_rgd(idx, rot, zoom_factor)
@@ -90,10 +97,20 @@ class GraspDatasetBase(torch.utils.data.Dataset):
                     0
                 )
             )
+        elif self.include_depth and self.include_gray:
+            x = self.numpy_to_torch(
+                np.concatenate(
+                    (np.expand_dims(depth_img, 0),
+                     gray_img),
+                    0
+                )
+            )
         elif self.include_depth:
             x = self.numpy_to_torch(depth_img)
         elif self.include_rgb:
             x = self.numpy_to_torch(rgb_img)
+        elif self.include_gray:
+            x = self.numpy_to_torch(gray_img)
         elif self.include_rgd:
             x = self.numpy_to_torch(rgd_img)
 

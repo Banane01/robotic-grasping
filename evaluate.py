@@ -86,7 +86,9 @@ if __name__ == '__main__':
                            random_rotate=args.augment,
                            random_zoom=args.augment,
                            include_depth=args.use_depth,
-                           include_rgb=args.use_rgb)
+                           include_rgb=args.use_rgb,
+                           include_rgd=args.include_rgd,
+                           include_gray=args.include_gray)
 
     indices = list(range(test_dataset.length))
     split = int(np.floor(args.split * test_dataset.length))

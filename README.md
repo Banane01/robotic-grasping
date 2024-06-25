@@ -134,3 +134,4 @@ python ./train_network.py --dataset cornell --dataset-path ./dataset --descripti
  python ./train_network.py --dataset cornell --dataset-path ./dataset --description training_cornell --use-rgb 1 --use-depth 1 --network lightweight --input-size 224 --channel-size 32 --vis
 
 python ./train_network.py --dataset cornell --dataset-path ./dataset --description training_cornell --use-rgb 1 --use-depth 1 --network lightweight --input-size 224 --channel-size 32
+python ./train_network.py --dataset cornell --dataset-path ./dataset --description training_cornell --use-gray 1 --use-depth 1 --network grconvnet3 --input-size 224 --channel-size 32

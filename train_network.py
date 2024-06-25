@@ -35,6 +35,8 @@ def parse_args():
                         help='Use RGB image for training (1/0)')
     parser.add_argument('--use-rgd', type=int, default=0,
                         help='Use RGD image for training (1/0)')
+    parser.add_argument('--use-gray', type=int, default=0,
+                        help='Use Grayscale image for training (1/0)')
     parser.add_argument('--use-dropout', type=int, default=1,
                         help='Use dropout for training (1/0)')
     parser.add_argument('--dropout-prob', type=float, default=0.1,
@@ -257,7 +259,8 @@ def run():
                       random_zoom=True,
                       include_depth=args.use_depth,
                       include_rgb=args.use_rgb,
-                      include_rgd=args.use_rgd)
+                      include_rgd=args.use_rgd,
+                      include_gray=args.use_gray)
     logging.info('Dataset size is {}'.format(dataset.length))
 
     # Creating data indices for training and validation splits
@@ -290,7 +293,7 @@ def run():
 
     # Load the network
     logging.info('Loading Network...')
-    input_channels = 1 * args.use_depth + 3 * args.use_rgb + 3 * args.use_rgd
+    input_channels =  args.use_depth + 3 * args.use_rgb + 3 * args.use_rgd + args.use_gray
     network = get_network(args.network)
     net = network(
         input_channels=input_channels,
