@@ -77,3 +77,43 @@ def calculate_iou_match(grasp_q, grasp_angle, ground_truth_bbs, no_grasps=1, gra
             return True
     else:
         return False
+    
+def acc(grasp_q, grasp_angle, ground_truth_bbs, no_grasps=1, grasp_width=None, angle_threshold=np.pi/2, dimension_threshold=7.0):
+    if not isinstance(ground_truth_bbs, GraspRectangles):
+        gt_bbs = GraspRectangles.load_from_array(ground_truth_bbs)
+    else:
+        gt_bbs = ground_truth_bbs
+    gs = detect_grasps(grasp_q, grasp_angle, width_img=grasp_width, no_grasps=no_grasps)
+    for g in gs:
+        iou_percentage =  g.max_iou(gt_bbs)
+            
+    ##############################Berechnung des Winkelunterschieds#####################################
+    angle_diff = abs((gt_bbs.angle - grasp_angle + np.pi / 2) % np.pi - np.pi / 2)
+    if angle_diff > angle_threshold:
+        angle_percentage = 0
+    else:
+        angle_percentage =  round(max(0, (1 - angle_diff / angle_threshold) * 100), 2)
+    #print("Winkelunterschied in Grad:", round(np.degrees(angle_diff),4))
+    print("Winkel Prozentsatz:", angle_percentage)
+
+    ##############################Berechnung übereinstimmung Länge/Breite Prozentsatzes##########################
+    ground_width = np.linalg.norm(ground_truth_bbs.points[0] - ground_truth_bbs.points[1])
+    pred_width = grasp_width
+
+    width_diff = abs(ground_width - pred_width)
+    
+    if width_diff >= dimension_threshold:
+        dimension_percentage = 0
+        print("Dimension Prozentsatz", dimension_percentage)
+    
+    else:
+        width_percentage = max(0, (1 - width_diff / dimension_threshold) * 100)
+
+        dimension_percentage= round((width_percentage) / 2, 2)
+        print("Dimension Prozentsatz:", dimension_percentage)
+
+    
+    ##############################Durchschnitt der drei Prozentsätze############################
+    average_percentage = round((angle_percentage + iou_percentage + dimension_percentage) / 3, 2)   
+    
+    return average_percentage
