@@ -32,6 +32,10 @@ def parse_args():
                         help='Use Depth image for evaluation (1/0)')
     parser.add_argument('--use-rgb', type=int, default=1,
                         help='Use RGB image for evaluation (1/0)')
+    parser.add_argument('--use-rgd', type=int, default=0,
+                        help='Include RGD channel')
+    parser.add_argument('--use-gray', type=int, default=0,
+                        help='Include grayscale image')
     parser.add_argument('--augment', action='store_true',
                         help='Whether data augmentation should be applied')
     parser.add_argument('--split', type=float, default=0.9,
@@ -87,8 +91,8 @@ if __name__ == '__main__':
                            random_zoom=args.augment,
                            include_depth=args.use_depth,
                            include_rgb=args.use_rgb,
-                           include_rgd=args.include_rgd,
-                           include_gray=args.include_gray)
+                           include_rgd=args.use_rgd,
+                           include_gray=args.use_gray)
 
     indices = list(range(test_dataset.length))
     split = int(np.floor(args.split * test_dataset.length))
