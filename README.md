@@ -1,11 +1,7 @@
-# conda ENV
-```bash
-conda create -n robot python=3.9 
-conda activate robot 
-conda install pytorch==1.12.0 torchvision==0.13 cudatoolkit=11.3 -c pytorch -y
-cd robotic-grasping
-pip install -r requirements.txt
-```
+# Annototation
+This repository was foked from a [repository](https://github.com/zhenjing/robotic-grasping) on github which is a fork from the [original implementation](https://github.com/skumra/robotic-grasping
+) with updated versions for python 3.9 to get an working pipeline to start with. 
+
 
 # Antipodal Robotic Grasping
 We present a novel generative residual convolutional neural network based model architecture which detects objects in the camera’s field of view and predicts a suitable antipodal grasp configuration for the objects in the image.
@@ -35,38 +31,31 @@ If you use this project in your research or wish to refer to the baseline result
 
 ## Requirements
 
-- numpy
-- opencv-python
-- matplotlib
-- scikit-image
-- imageio
-- torch
-- torchvision
-- torchsummary
-- tensorboardX
-- pyrealsense2
-- Pillow
+- numpy==1.26.4
+- opencv-python==4.10.0.82
+- matplotlib==3.9.0
+- scikit-image==0.22.0
+- imageio==2.34.1
+- torch==1.12.1
+- torchvision==0.13.1
+- torchsummary==1.5.1
+- tensorboardX==2.6.2.2
+- Pillow==9.5.0
 
-## Installation
+## Installation via conda and pip
+
+```bash
+conda create -n grasping python=3.9 
+conda activate grasping 
+conda install pytorch==1.12.0 torchvision==0.13 cudatoolkit=11.3 -c pytorch -y
+cd robotic-grasping
+pip install -r requirements.txt
+```
+
+
 - Checkout the robotic grasping package
 ```bash
-$ git clone https://github.com/skumra/robotic-grasping.git
-```
-
-- Create a virtual environment
-```bash
-$ python3.6 -m venv --system-site-packages venv
-```
-
-- Source the virtual environment
-```bash
-$ source venv/bin/activate
-```
-
-- Install the requirements
-```bash
-$ cd robotic-grasping
-$ pip install -r requirements.txt
+$ git clone https://github.com/Banane01/robotic-grasping.git
 ```
 
 ## Datasets
@@ -79,11 +68,6 @@ This repository supports both the [Cornell Grasping Dataset](https://www.kaggle.
 1. Download the and extract [Cornell Grasping Dataset](https://www.kaggle.com/oneoneliu/cornell-grasp). 
 2. Convert the PCD files to depth images by running `python -m utils.dataset_processing.generate_cornell_depth <Path To Dataset>`
 
-#### Jacquard Dataset
-
-1. Download and extract the [Jacquard Dataset](https://jacquard.liris.cnrs.fr/).
-
-
 ## Model Training
 
 A model can be trained using the `train_network.py` script.  Run `train_network.py --help` to see a full list of options.
@@ -92,12 +76,6 @@ Example for Cornell dataset:
 
 ```bash
 python train_network.py --dataset cornell --dataset-path <Path To Dataset> --description training_cornell
-```
-
-Example for Jacquard dataset:
-
-```bash
-python train_network.py --dataset jacquard --dataset-path <Path To Dataset> --description training_jacquard --use-dropout 0 --input-size 300
 ```
 
 ## Model Evaluation
@@ -121,17 +99,3 @@ A task can be executed using the relevant run script. All task scripts are named
 ```bash
 python run_grasp_generator.py
 ```
-
-## Run on a Robot
-To run the grasp generator with a robot, please use our ROS implementation for Baxter robot. It is available at: https://github.com/skumra/baxter-pnp
-
-python ./train_network.py --dataset cornell --dataset-path ./dataset --description training_cornell --use-rgb 1 --use-depth 1 --network efcnn --vis --input-size 240
-
-python ./train_network.py --dataset cornell --dataset-path ./dataset --description training_cornell --use-rgb 1 --use-depth 1 --network squeezenet --vis --input-size 224 --channel-size 64
-
-python ./train_network.py --dataset cornell --dataset-path ./dataset --description training_cornell --use-rgb 1 --use-depth 1 --network efcnn2 --vis --input-size 240
-
- python ./train_network.py --dataset cornell --dataset-path ./dataset --description training_cornell --use-rgb 1 --use-depth 1 --network lightweight --input-size 224 --channel-size 32 --vis
-
-python ./train_network.py --dataset cornell --dataset-path ./dataset --description training_cornell --use-rgb 1 --use-depth 1 --network lightweight --input-size 224 --channel-size 32
-python ./train_network.py --dataset cornell --dataset-path ./dataset --description training_cornell --use-gray 1 --use-depth 1 --network grconvnet3 --input-size 224 --channel-size 32
