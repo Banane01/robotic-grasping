@@ -1,4 +1,4 @@
-# Annototation
+# Annotation
 This repository was foked from a [repository](https://github.com/zhenjing/robotic-grasping) on github which is a fork from the [original implementation](https://github.com/skumra/robotic-grasping
 ) with updated versions for python 3.9 to get an working pipeline to start with. 
 
