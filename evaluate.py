@@ -46,6 +46,7 @@ def parse_args():
                         help='Shift the start point of the dataset to use a different test/train split')
     parser.add_argument('--num-workers', type=int, default=8,
                         help='Dataset workers')
+ 
 
     # Evaluation
     parser.add_argument('--n-grasps', type=int, default=1,
@@ -56,6 +57,8 @@ def parse_args():
                         help='Compute success based on IoU metric.')
     parser.add_argument('--jacquard-output', action='store_true',
                         help='Jacquard-dataset style output')
+    parser.add_argument('--use-other-accuracy', action='store_true',
+                        help='Use group accuracy')
 
     # Misc.
     parser.add_argument('--vis', action='store_true',
@@ -137,6 +140,13 @@ if __name__ == '__main__':
                 
                 rot = rotTensor.item()
                 zoom = zoomTensor.item()
+                if args.use_other_accuracy:
+                    acc = evaluation.acc(q_img, ang_img, test_data.dataset.get_gtbb(didx, rot, zoom),
+                                         no_grasps=args.n_grasps,
+                                         grasp_width=width_img)
+                    print("Accuracy: {:.2f}%'.format(acc * 100)")
+                    continue
+
                 if args.iou_eval:
                     s = evaluation.calculate_iou_match(q_img, ang_img, test_data.dataset.get_gtbb(didx, rot, zoom),
                                                        no_grasps=args.n_grasps,
